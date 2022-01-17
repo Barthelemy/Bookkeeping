@@ -1,7 +1,9 @@
 # Bookkeeping
 This repository contains the software for ALICE Bookkeeping.
 
-## Wiki
+## Wiki for Clients
+- Go to chapter: [API](./docs/API.md)
+## Wiki for Developers
 - Go to chapter: [Configuration](./docs/CONFIGURATION.md)
 - Go to chapter: [Contributing](./docs/CONTRIBUTING.md)
 - Go to chapter: [Development](./docs/DEVELOPMENT.md)
