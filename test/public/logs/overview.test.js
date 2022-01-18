@@ -435,7 +435,7 @@ module.exports = () => {
         // Override the amount of logs visible per page manually
         await page.evaluate(() => {
             // eslint-disable-next-line no-undef
-            model.logs.setLogsPerPage(1);
+            model.logs.logsPerPage = 1;
         });
         await page.waitForTimeout(100);
 
@@ -456,7 +456,7 @@ module.exports = () => {
         // Revert changes for next test
         await page.evaluate(() => {
             // eslint-disable-next-line no-undef
-            model.logs.setLogsPerPage(10);
+            model.logs.logsPerPage = 10;
         });
     });
 
@@ -479,7 +479,7 @@ module.exports = () => {
          */
         await page.evaluate(() => {
             // eslint-disable-next-line no-undef
-            model.logs.setLogsPerPage(200);
+            model.logs.logsPerPage = 200;
         });
         await page.waitForTimeout(100);
 
@@ -490,7 +490,7 @@ module.exports = () => {
         // Revert changes for next test
         await page.evaluate(() => {
             // eslint-disable-next-line no-undef
-            model.logs.setLogsPerPage(10);
+            model.logs.logsPerPage = 10;
         });
         await page.waitForTimeout(100);
     });
@@ -518,7 +518,7 @@ module.exports = () => {
         // Override the amount of logs visible per page manually
         await page.evaluate(() => {
             // eslint-disable-next-line no-undef
-            model.logs.setLogsPerPage(1);
+            model.logs.logsPerPage = 1;
         });
         await page.waitForTimeout(100);
 
