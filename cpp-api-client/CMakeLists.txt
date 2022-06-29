@@ -5,8 +5,14 @@ project(
     VERSION 0.21.0
     LANGUAGES CXX)
 
+# C++ standard
+if(NOT DEFINED CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 17)
+  set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
+endif()
+
 find_package(Doxygen)
-if (DOXYGEN_FOUND)
+if (DOXYGEN_FOUND AND DOC)
   message("Generating Doxygen documentation for ${CMAKE_SOURCE_DIR}/src")
   set(DOXYGEN_USE_MDFILE_AS_MAINPAGE "${CMAKE_SOURCE_DIR}/README.md")
   set(DOXYGEN_GENERATE_TREEVIEW YES)
@@ -41,102 +47,155 @@ message("A ${CMAKE_BUILD_TYPE} build configuration is detected")
 
 # Update require components as necessary
 find_package(Boost 1.45.0 REQUIRED COMPONENTS system date_time program_options)
-
+find_package(cpprestsdk REQUIRED)
 # Find cpprest dependency
-include(CMakeFindDependencyMacro)
-find_dependency(cpprestsdk REQUIRED) 
+#include(CMakeFindDependencyMacro)
+#find_dependency(cpprestsdk REQUIRED)
+
 
 # Set source files
-file(GLOB SOURCES 
+file(GLOB SOURCES
     "src/*.cpp"
     "src/cpprest-client/*.cpp"
     "src/cpprest-client/api/*.cpp"
     "src/cpprest-client/model/*.cpp")
 
-# Set library
-add_library(
-    ${PROJECT_NAME}
-    SHARED
-    ${SOURCES})
+## Set library
+#add_library(
+#    ${PROJECT_NAME}
+#    SHARED
+#    ${SOURCES})
+#
+## Set the paths where the files can be found
+#target_include_directories(
+#    ${PROJECT_NAME}
+#    PUBLIC
+#    $<INSTALL_INTERFACE:include>
+#    $<INSTALL_INTERFACE:include/BookkeepingApiCpp/cpprest-client>
+#    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/cpprest-client>
+#    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/cpprest-client/api>
+#    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/cpprest-client/model>)
+#
+## Link external libraries to the project
+#target_link_libraries(
+#    ${PROJECT_NAME}
+#    PRIVATE
+#    Boost::headers
+#    Boost::program_options
+#    PUBLIC
+#    Boost::date_time
+#    pthread
+#    cpprestsdk::cpprest
+#    OpenSSL::SSL
+#)
+#
+#target_compile_features(
+#    ${PROJECT_NAME}
+#    PUBLIC
+#    cxx_std_17)
+#
+#set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "O2BookkeepingApiCpp")
+#
+## Executable for example.cpp
+#add_executable(
+#    bookkeeping-api-cpp-example
+#    src/Example.cpp)
+#
+#target_link_libraries(
+#    bookkeeping-api-cpp-example
+#    PRIVATE
+#    Boost::headers
+#    Boost::program_options
+#    BookkeepingApiCpp)
+#
+## Set CMAKE_INSTALL_LIBDIR explicitly to lib (to avoid lib64 on CC7)
+#set(CMAKE_INSTALL_LIBDIR lib)
+#install(
+#    TARGETS BookkeepingApiCpp bookkeeping-api-cpp-example
+#    EXPORT BookkeepingApiCppTargets
+#    RUNTIME DESTINATION bin
+#    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+#    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+#
+#install(
+#    EXPORT BookkeepingApiCppTargets
+#    FILE BookkeepingApiCppTargets.cmake
+#    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/BookkeepingApiCpp")
+#
+#install(
+#    DIRECTORY src/
+#    DESTINATION include/BookkeepingApiCpp
+#    FILES_MATCHING PATTERN "*.h")
+#
+## Configure and install package config files
+#include(CMakePackageConfigHelpers)
+#
+#write_basic_package_version_file(
+#    "${CMAKE_CURRENT_BINARY_DIR}/cmake/BookkeepingApiCppConfigVersion.cmake"
+#    VERSION ${PACKAGE_VERSION}
+#    COMPATIBILITY AnyNewerVersion)
+#
+#configure_package_config_file(
+#    cmake/BookkeepingApiCppConfig.cmake.in
+#    cmake/BookkeepingApiCppConfig.cmake
+#    INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/BookkeepingApiCpp"
+#    PATH_VARS CMAKE_INSTALL_PREFIX)
+#
+#install(
+#    FILES
+#    "${CMAKE_CURRENT_BINARY_DIR}/cmake/BookkeepingApiCppConfig.cmake"
+#    "${CMAKE_CURRENT_BINARY_DIR}/cmake/BookkeepingApiCppConfigVersion.cmake"
+#    DESTINATION
+#    ${CMAKE_INSTALL_LIBDIR}/cmake/BookkeepingApiCpp)
 
-# Set the paths where the files can be found
+
+add_library(BookkeepingApiCpp2
+  src/BookkeepingApi2.cxx
+  )
+
 target_include_directories(
-    ${PROJECT_NAME}
-    PUBLIC
-    $<INSTALL_INTERFACE:include>
-    $<INSTALL_INTERFACE:include/BookkeepingApiCpp/cpprest-client>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/cpprest-client>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/cpprest-client/api>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/cpprest-client/model>)
-
-# Link external libraries to the project
-target_link_libraries(
-    ${PROJECT_NAME}
-    PRIVATE
-    Boost::headers
-    Boost::program_options
-    PUBLIC
-    Boost::date_time
-    pthread
-    cpprestsdk::cpprest
-    OpenSSL::SSL
+  BookkeepingApiCpp2
+  PUBLIC $<INSTALL_INTERFACE:include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-target_compile_features(
-    ${PROJECT_NAME}
-    PUBLIC
-    cxx_std_17)
+target_link_libraries(BookkeepingApiCpp2 PRIVATE cpprestsdk::cpprest)
 
-set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "O2BookkeepingApiCpp")
+# Install library and binaries
+install(TARGETS BookkeepingApiCpp2
+  EXPORT BookkeepingApiCpp2Targets
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin)
 
-# Executable for example.cpp
-add_executable(
-    bookkeeping-api-cpp-example
-    src/Example.cpp)
+# Install headers
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/bookkeeping
+  DESTINATION include)
 
-target_link_libraries(
-    bookkeeping-api-cpp-example
-    PRIVATE
-    Boost::headers
-    Boost::program_options
-    BookkeepingApiCpp)
-
-# Set CMAKE_INSTALL_LIBDIR explicitly to lib (to avoid lib64 on CC7)
-set(CMAKE_INSTALL_LIBDIR lib)
-install(
-    TARGETS BookkeepingApiCpp bookkeeping-api-cpp-example
-    EXPORT BookkeepingApiCppTargets
-    RUNTIME DESTINATION bin
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
-
-install(
-    EXPORT BookkeepingApiCppTargets
-    FILE BookkeepingApiCppTargets.cmake
-    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/BookkeepingApiCpp")
-
-install(
-    DIRECTORY src/
-    DESTINATION include/BookkeepingApiCpp
-    FILES_MATCHING PATTERN "*.h")
-
-# Configure and install package config files
+# Create version file
 include(CMakePackageConfigHelpers)
-
 write_basic_package_version_file(
-    "${CMAKE_CURRENT_BINARY_DIR}/cmake/BookkeepingApiCppConfigVersion.cmake"
-    VERSION ${PACKAGE_VERSION}
-    COMPATIBILITY AnyNewerVersion)
+  "${CMAKE_CURRENT_BINARY_DIR}/cmake/BookkeepingApiCpp2ConfigVersion.cmake"
+  VERSION ${PACKAGE_VERSION}
+  COMPATIBILITY AnyNewerVersion)
 
+# Export targets
+install(EXPORT BookkeepingApiCpp2Targets
+  FILE BookkeepingApiCpp2Targets.cmake
+  NAMESPACE BookkeepingApiCpp2::
+  DESTINATION lib/cmake/BookkeepingApiCpp2)
+
+# Configure and install Config files
 configure_package_config_file(
-    cmake/BookkeepingApiCppConfig.cmake.in 
-    cmake/BookkeepingApiCppConfig.cmake
-    INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/BookkeepingApiCpp"
-    PATH_VARS CMAKE_INSTALL_PREFIX)
+  cmake/BookkeepingApiCpp2Config.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/cmake/BookkeepingApiCpp2Config.cmake
+  INSTALL_DESTINATION
+  "lib/cmake/BookkeepingApiCpp2"
+  PATH_VARS
+  CMAKE_INSTALL_PREFIX)
 
 install(
-    FILES
-    "${CMAKE_CURRENT_BINARY_DIR}/cmake/BookkeepingApiCppConfig.cmake"
-    "${CMAKE_CURRENT_BINARY_DIR}/cmake/BookkeepingApiCppConfigVersion.cmake"
-    DESTINATION
-    ${CMAKE_INSTALL_LIBDIR}/cmake/BookkeepingApiCpp)
+  FILES "${CMAKE_CURRENT_BINARY_DIR}/cmake/BookkeepingApiCpp2Config.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/cmake/BookkeepingApiCpp2ConfigVersion.cmake"
+  DESTINATION lib/cmake/BookkeepingApiCpp2)

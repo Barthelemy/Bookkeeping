@@ -1,0 +1,32 @@
+/usr/local/bin/cmake -DCMAKE_BUILD_TYPE=Debug "-DCMAKE_MAKE_PROGRAM=/Users/bvonhall/Library/Application Support/JetBrains/Toolbox/apps/CLion/ch-0/221.5591.52/CLion.app/Contents/bin/ninja/mac/ninja" -G Ninja -S /Users/bvonhall/dev/alice/Bookkeeping/cpp-api-client -B /Users/bvonhall/dev/alice/Bookkeeping/cpp-api-client/cmake-build-debug
+-- The CXX compiler identification is AppleClang 13.1.6.13160021
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Found Doxygen: /usr/local/bin/doxygen (found version "1.9.4") found components: doxygen missing components: dot
+A Debug build configuration is detected
+-- Found Boost: /Users/bvonhall/dev/alice/sw/osx_x86-64/boost/v1.75.0-local1/lib/cmake/Boost-1.75.0/BoostConfig.cmake (found suitable version "1.75.0", minimum required is "1.45.0") found components: system date_time program_options 
+CMake Error at /usr/local/Cellar/cmake/3.23.2/share/cmake/Modules/CMakeFindDependencyMacro.cmake:47 (find_package):
+  By not providing "Findcpprestsdk.cmake" in CMAKE_MODULE_PATH this project
+  has asked CMake to find a package configuration file provided by
+  "cpprestsdk", but CMake did not find one.
+
+  Could not find a package configuration file provided by "cpprestsdk" with
+  any of the following names:
+
+    cpprestsdkConfig.cmake
+    cpprestsdk-config.cmake
+
+  Add the installation prefix of "cpprestsdk" to CMAKE_PREFIX_PATH or set
+  "cpprestsdk_DIR" to a directory containing one of the above files.  If
+  "cpprestsdk" provides a separate development package or SDK, be sure it has
+  been installed.
+Call Stack (most recent call first):
+  CMakeLists.txt:47 (find_dependency)
+
+
+-- Configuring incomplete, errors occurred!
+See also "/Users/bvonhall/dev/alice/Bookkeeping/cpp-api-client/cmake-build-debug/CMakeFiles/CMakeOutput.log".
+See also "/Users/bvonhall/dev/alice/Bookkeeping/cpp-api-client/cmake-build-debug/CMakeFiles/CMakeError.log".
