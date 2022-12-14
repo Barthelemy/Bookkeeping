@@ -13,7 +13,7 @@
 
 const chai = require('chai');
 const request = require('supertest');
-const { repositories: { FlpRepository } } = require('../../lib/database');
+const { repositories: { FlpRoleRepository } } = require('../../lib/database');
 
 const { expect } = chai;
 
@@ -99,7 +99,7 @@ module.exports = () => {
                         return;
                     }
 
-                    const totalNumber = await FlpRepository.count();
+                    const totalNumber = await FlpRoleRepository.count();
 
                     expect(res.body.data).to.have.lengthOf(2);
                     expect(res.body.meta.page.pageCount).to.equal(Math.ceil(totalNumber / 2));
