@@ -11,10 +11,8 @@
  * or submit itself to any jurisdiction.
  */
 
-const DetectorSuite = require('./detector');
-const FlpRoleSuite = require('./flpRole');
+const updateFlpRoleTest = require('./updateFlpRole.test.js');
 
 module.exports = () => {
-    describe('Detector', DetectorSuite);
-    describe('Flp role', FlpRoleSuite);
+    describe('updateFlpRole', updateFlpRoleTest);
 };
