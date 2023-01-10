@@ -48,8 +48,8 @@ add_custom_command(
 set(library_name BookkeepingApi)
 
 add_library(${library_name}
-  src/BookkeepingClient.cxx
   src/BookkeepingImpl.cxx
+  src/BookkeepingFactory.cxx
   ${PROTO_CPP_OUTPUT}
   ${GRPC_CPP_OUTPUT}
 )
@@ -70,9 +70,9 @@ target_link_libraries(
 
 ### EXECUTABLE
 
-add_executable(client src/client.cxx)
+add_executable(runner src/runner.cxx)
 
-target_link_libraries(client
+target_link_libraries(runner
   PUBLIC
   ${library_name}
   )
@@ -92,12 +92,7 @@ configure_package_config_file(cmake/${CMAKE_PROJECT_NAME}Config.cmake.in
 
 ### INSTALL
 
-#set_target_properties(${library_name}
-#  PROPERTIES
-#  PUBLIC_HEADER "include/BookkeepingApi/BookkeepingClient.h"
-#  )
-
-install(TARGETS ${library_name} client
+install(TARGETS ${library_name} runner
   EXPORT ${library_name}Targets
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}

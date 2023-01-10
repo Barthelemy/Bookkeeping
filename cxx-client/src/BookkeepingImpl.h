@@ -3,8 +3,9 @@
 
 #include <memory>
 #include "flp.grpc.pb.h"
+#include "BookkeepingApi/BookkeepingInterface.h"
 
-class BookkeepingImpl {
+class BookkeepingImpl : public BookkeepingInterface {
  public:
   BookkeepingImpl(const std::string& url);
   ~BookkeepingImpl() = default;

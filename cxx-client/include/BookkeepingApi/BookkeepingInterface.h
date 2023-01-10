@@ -3,24 +3,16 @@
 
 #include <memory>
 
-class BookkeepingImpl;
-
-class BookkeepingClient {
+class BookkeepingInterface {
  public:
-  BookkeepingClient(const std::string& url);
-  ~BookkeepingClient() = default;
-
-  void updateCounters(
+  virtual void updateCounters(
     const std::string &flpName,
     int32_t runNumber,
     int64_t nSubtimeframes,
     int64_t nEquipmentBytes,
     int64_t nRecordingBytes,
     int64_t nFairMQBytes
-  );
-
- private:
-  std::shared_ptr<BookkeepingImpl> mImpl;
+  ) = 0;
 };
 
 #endif
