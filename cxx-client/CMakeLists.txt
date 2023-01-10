@@ -14,25 +14,6 @@ set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
 set(INCLUDE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/include")
 set(CMAKE_BUILD_TYPE "RelWithDebInfo")
 
-####################################
-# RPATH
-####################################
-
-include(GNUInstallDirs)
-
-# Build targets with install rpath on Mac to dramatically speed up installation
-set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}" isSystemDir)
-if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-  if("${isSystemDir}" STREQUAL "-1")
-    set(CMAKE_INSTALL_RPATH "@loader_path/../${CMAKE_INSTALL_LIBDIR}")
-  endif()
-  set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
-endif()
-unset(isSystemDir)
-
-
-
 set(PROTO_FILE ${CMAKE_CURRENT_SOURCE_DIR}/../proto/flp.proto)
 get_filename_component(PROTO_OUTPUT_NAME ${PROTO_FILE} NAME_WE)
 get_filename_component(PROTO_FILE_PREFIX ${PROTO_FILE} PATH)
@@ -62,20 +43,42 @@ add_custom_command(
     VERBATIM
 )
 
-set(application client.cxx)
-get_filename_component(application_name ${application} NAME)
-string(REGEX REPLACE ".cxx" "" application_name ${application_name})
-add_executable(${application_name} ${application} ${PROTO_CPP_OUTPUT} ${GRPC_CPP_OUTPUT})
+### LIBRARY
+
+set(library_name BookkeepingApi)
+
+add_library(${library_name}
+  src/BookkeepingClient.cxx
+  src/BookkeepingImpl.cxx
+  ${PROTO_CPP_OUTPUT}
+  ${GRPC_CPP_OUTPUT}
+)
+
+target_include_directories(${library_name}
+  PUBLIC $<INSTALL_INTERFACE:include>    # public header once installed
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> # to build it
+  PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}> # because of the proto generated files
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src> # private headers
+)
+
 target_link_libraries(
-    ${application_name} PRIVATE
+  ${library_name}
+  PRIVATE
     gRPC::grpc++
     protobuf::libprotobuf
 )
-target_include_directories(${application_name} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
-install(TARGETS ${application_name})
+
+### EXECUTABLE
+
+add_executable(client src/client.cxx)
+
+target_link_libraries(client
+  PUBLIC
+  ${library_name}
+  )
 
 
-# produce and install the cmake package info
+# PACKAGE INFO
 
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(${CMAKE_PROJECT_NAME}ConfigVersion.cmake
@@ -86,7 +89,33 @@ configure_package_config_file(cmake/${CMAKE_PROJECT_NAME}Config.cmake.in
   INSTALL_DESTINATION
   "${CMAKE_INSTALL_LIBDIR}/cmake/${CMAKE_PROJECT_NAME}")
 
+
+### INSTALL
+
+#set_target_properties(${library_name}
+#  PROPERTIES
+#  PUBLIC_HEADER "include/BookkeepingApi/BookkeepingClient.h"
+#  )
+
+install(TARGETS ${library_name} client
+  EXPORT ${library_name}Targets
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+#  PUBLIC_HEADER DESTINATION include
+)
+
+# Install headers
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/BookkeepingApi
+  DESTINATION "include")
+
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}Config.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}ConfigVersion.cmake
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${CMAKE_PROJECT_NAME})
 
+# Export targets
+install(EXPORT ${library_name}Targets
+  FILE ${library_name}Targets.cmake
+  NAMESPACE ${library_name}::
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${library_name}
+  )
