@@ -14,6 +14,25 @@ set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
 set(INCLUDE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/include")
 set(CMAKE_BUILD_TYPE "RelWithDebInfo")
 
+####################################
+# RPATH
+####################################
+
+include(GNUInstallDirs)
+
+# Build targets with install rpath on Mac to dramatically speed up installation
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}" isSystemDir)
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+  if("${isSystemDir}" STREQUAL "-1")
+    set(CMAKE_INSTALL_RPATH "@loader_path/../${CMAKE_INSTALL_LIBDIR}")
+  endif()
+  set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+endif()
+unset(isSystemDir)
+
+
+
 set(PROTO_FILE ${CMAKE_CURRENT_SOURCE_DIR}/../proto/flp.proto)
 get_filename_component(PROTO_OUTPUT_NAME ${PROTO_FILE} NAME_WE)
 get_filename_component(PROTO_FILE_PREFIX ${PROTO_FILE} PATH)
@@ -54,3 +73,20 @@ target_link_libraries(
 )
 target_include_directories(${application_name} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 install(TARGETS ${application_name})
+
+
+# produce and install the cmake package info
+
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(${CMAKE_PROJECT_NAME}ConfigVersion.cmake
+  VERSION ${${CMAKE_PROJECT_NAME}_VERSION}
+  COMPATIBILITY SameMajorVersion)
+configure_package_config_file(cmake/${CMAKE_PROJECT_NAME}Config.cmake.in
+  "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}Config.cmake"
+  INSTALL_DESTINATION
+  "${CMAKE_INSTALL_LIBDIR}/cmake/${CMAKE_PROJECT_NAME}")
+
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}Config.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}ConfigVersion.cmake
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${CMAKE_PROJECT_NAME})
+
